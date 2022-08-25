@@ -3,7 +3,7 @@ import socket
 
 
 def add_host(ip, name):
-    with open('/etc/hosts') as f:
+    with open('/etc/pihole/custom.list') as f:
         content = f.read()
 
     has_merged = False
@@ -57,7 +57,7 @@ def add_host(ip, name):
     if not has_merged:
         result.append("{}\t{}".format(ip, name))
     
-    with open('/etc/hosts', 'w') as f:
+    with open('/etc/pihole/custom.list', 'w') as f:
         f.write('\n'.join(result))
 
 
