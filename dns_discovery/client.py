@@ -10,6 +10,7 @@ def client_main():
     hostname = socket.gethostname()
     server_addr = (os.getenv("SERVER_IP"), int(os.getenv("SERVER_PORT", "3671")))
 
+    print('reporting...')
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
     s.sendto(bytes(hostname), server_addr)
     s.close()

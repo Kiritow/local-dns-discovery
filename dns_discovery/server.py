@@ -13,7 +13,7 @@ def add_host(ip, name):
         if line.startswith('#'):
             result.append(line)
             continue
-        
+
         if not line:
             result.append('')
             continue
@@ -59,7 +59,7 @@ def add_host(ip, name):
     
     with open('/etc/hosts', 'w') as f:
         f.write('\n'.join(result))
-    
+
 
 def server_main():
     listen_port = int(os.getenv("LISTEN_PORT", "3671"))
@@ -68,7 +68,7 @@ def server_main():
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.bind(('0.0.0.0', listen_port))
 
-    print('Server started.')
+    print('Server started, listening on port {}...'.format(listen_port))
 
     while True:
         data, address = s.recvfrom(4096)
