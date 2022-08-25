@@ -1,0 +1,9 @@
+[Unit]
+Description=Local DNS Discovery Client Service
+
+[Service]
+Type=simple
+SyslogIdentifier=local-dns-discovery-client
+User=
+Environment=SERVER_IP=
+ExecStart=/usr/local/bin/local-dns-discovery-client

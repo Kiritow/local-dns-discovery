@@ -1,0 +1,7 @@
+[Unit]
+Description=Local DNS Discovery Server Service
+
+[Service]
+Type=simple
+SyslogIdentifier=local-dns-discovery-server
+ExecStart=/usr/local/bin/local-dns-discovery-server
