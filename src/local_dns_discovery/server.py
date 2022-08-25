@@ -1,6 +1,8 @@
 import os
 import socket
 import subprocess
+from threading import Timer, Event
+import traceback
 
 
 def add_host(ip, name):
@@ -45,7 +47,7 @@ def add_host(ip, name):
 
     if not has_merged:
         result.append("{} {}".format(ip, name))
-    
+
     new_content = '\n'.join(result)
     if new_content == content:
         return False
@@ -54,6 +56,13 @@ def add_host(ip, name):
         f.write('\n'.join(result))
 
     return True
+
+
+def do_restart_pihole():
+    try:
+        subprocess.check_call(["pihole", "restartdns"])
+    except Exception:
+        print(traceback.format_exc())
 
 
 def server_main():
@@ -65,6 +74,16 @@ def server_main():
 
     print('Server started, listening on port {}...'.format(listen_port))
 
+    e = Event()
+
+    def restart_pihole():
+        if e.is_set():
+            e.clear()
+            do_restart_pihole()
+        Timer(60, restart_pihole).start()
+
+    Timer(60, restart_pihole).start()
+
     while True:
         data, address = s.recvfrom(4096)
 
@@ -75,3 +94,4 @@ def server_main():
         if add_host(host_ip, host_name):
             print('reloading pihole...')
             subprocess.check_call(["pihole", "restartdns", "reload-lists"])
+            e.set()
