@@ -1,5 +1,6 @@
 import os
 import socket
+import subprocess
 
 
 def add_host(ip, name):
@@ -7,6 +8,7 @@ def add_host(ip, name):
         content = f.read()
 
     has_merged = False
+    has_changed = False
     result = []
 
     for line in content.split('\n'):
@@ -26,7 +28,7 @@ def add_host(ip, name):
         if ':' in parts[0]:  # skip ipv6
             result.append(line)
             continue
-        
+
         if parts[0].startswith('127'):  # skip 127.0.0.1 loopback
             result.append(line)
             continue
@@ -42,9 +44,11 @@ def add_host(ip, name):
                 continue
             else:
                 current_hosts.append(name)
+                has_changed = True
         else:
             if name in current_hosts:
                 current_hosts.remove(name)
+                has_changed = True
             else:
                 result.append(line)
                 continue
@@ -53,12 +57,19 @@ def add_host(ip, name):
             continue
 
         result.append("{}\t{}".format(current_ip, '\t'.join(current_hosts)))
-    
+        has_changed = True
+
     if not has_merged:
         result.append("{}\t{}".format(ip, name))
-    
+        has_changed = True
+
+    if not has_changed:
+        return False
+
     with open('/etc/pihole/custom.list', 'w') as f:
         f.write('\n'.join(result))
+
+    return True
 
 
 def server_main():
@@ -77,4 +88,6 @@ def server_main():
         host_name = data.decode()
 
         print('Adding host: {} ({})'.format(host_name, host_ip))
-        add_host(host_ip, host_name)
+        if add_host(host_ip, host_name):
+            print('reloading pihole...')
+            subprocess.check_call(["pihole", "restartdns", "reload-lists"])
