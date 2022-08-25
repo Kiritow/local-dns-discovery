@@ -12,5 +12,5 @@ def client_main():
 
     print('reporting...')
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
-    s.sendto(bytes(hostname), server_addr)
+    s.sendto(hostname.encode(), server_addr)
     s.close()
