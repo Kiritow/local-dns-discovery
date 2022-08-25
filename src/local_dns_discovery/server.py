@@ -8,7 +8,6 @@ def add_host(ip, name):
         content = f.read()
 
     has_merged = False
-    has_changed = False
     result = []
 
     for line in content.split('\n'):
@@ -17,11 +16,11 @@ def add_host(ip, name):
             continue
 
         if not line:
-            result.append('')
+            # remove empty line
             continue
 
         parts = line.split()
-        if len(parts) < 2:
+        if len(parts) != 2:
             result.append(line)
             continue
 
@@ -29,41 +28,26 @@ def add_host(ip, name):
             result.append(line)
             continue
 
-        if parts[0].startswith('127'):  # skip 127.0.0.1 loopback
+        current_ip = parts[0]
+        current_host = parts[1]
+
+        if current_ip == ip and name == current_host:
+            has_merged = True
             result.append(line)
             continue
 
-        current_ip = parts[0]
-        current_hosts = parts[1:]
-
-        if current_ip == ip:
-            has_merged = True
-
-            if name in current_hosts:
-                result.append(line)
-                continue
-            else:
-                current_hosts.append(name)
-                has_changed = True
-        else:
-            if name in current_hosts:
-                current_hosts.remove(name)
-                has_changed = True
-            else:
-                result.append(line)
-                continue
-
-        if not current_hosts:
+        if name == current_host:
+            # remove current line by not adding into result
             continue
 
-        result.append("{}\t{}".format(current_ip, '\t'.join(current_hosts)))
-        has_changed = True
+        # other hosts with same ip
+        result.append(line)
 
     if not has_merged:
-        result.append("{}\t{}".format(ip, name))
-        has_changed = True
-
-    if not has_changed:
+        result.append("{} {}".format(ip, name))
+    
+    new_content = '\n'.join(result)
+    if new_content == content:
         return False
 
     with open('/etc/pihole/custom.list', 'w') as f:
