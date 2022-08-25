@@ -26,5 +26,5 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project.scripts]
-local-dns-discovery-client = "dns_discovery.client:client_main"
-local-dns-discovery-server = "dns_discovery.server:server_main"
+local-dns-discovery-client = "local_dns_discovery.client:client_main"
+local-dns-discovery-server = "local_dns_discovery.server:server_main"
